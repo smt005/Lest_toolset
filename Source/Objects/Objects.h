@@ -14,7 +14,7 @@ namespace property {
 	public:
 		Object() = delete;
 		Object(const std::string& id) : _id(id) { }
-		Object(std::string&& id) noexcept : _id(id) { }
+		Object(std::string&& id) : _id(id) { }
 
 		~Object() = default;
 
