@@ -1,0 +1,58 @@
+{
+	"All" : 
+	{
+		"Icon" : "Player.png",
+		"Int" : -100500,
+		"Material" : "Wood",
+		"Points" : "999999999",
+		"Speed" : -2.7107060140100389e+37,
+		"SpeedLimits" : 
+		[
+			-9.9999996802856925e+37,
+			9.9999996802856925e+37
+		]
+	},
+	"Banana" : 
+	{
+		"Icon" : "Matrix/Vert.jpg",
+		"Points" : "1234567890"
+	},
+	"Gold" : 
+	{
+		"Icon" : "Matrix/Hor.png",
+		"Points" : "999999999"
+	},
+	"Integer" : 
+	{
+		"Int" : -999999999
+	},
+	"Ladder" : 
+	{
+		"Icon" : "Color/Matrix4_4_color.png",
+		"Speed" : 1.809999942779541,
+		"SpeedLimits" : 
+		[
+			1.0,
+			3.0
+		]
+	},
+	"Player" : 
+	{
+		"Icon" : "Player.png"
+	},
+	"Rail" : 
+	{
+		"Icon" : "Matrix\\Vert.jpg",
+		"Speed" : 8.3000001907348633,
+		"SpeedLimits" : 
+		[
+			1.0,
+			10.0
+		]
+	},
+	"Wall" : 
+	{
+		"Icon" : "Color/Matrix4_4_color.png",
+		"Material" : "Wood"
+	}
+}
