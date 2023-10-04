@@ -49,7 +49,6 @@ public:
 	static Texture::Ptr GetTexture(const std::string& fileName);
 	static void RemoveTexture(const std::string& fileName);
 	static unsigned int LoadTexture(const std::string& fileName, unsigned int& width, unsigned int& height);
-	static unsigned int LoadTexture2(const std::string& fileName, unsigned int& width, unsigned int& height);
 
 private:
 	static std::map<std::string, Texture::Ptr> textures;
