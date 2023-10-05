@@ -81,36 +81,42 @@ namespace Editor {
 
     template<typename T>
     struct Loader {
-        static void Load(std::vector<Object::Property>& properties, const Json::Value& data) { }
+        static bool Load(std::vector<Object::Property>& properties, const Json::Value& data) { }
     };
 
     template<>
     struct Loader<Icon> {
-        static void Load(std::vector<Object::Property>& properties, const Json::Value& data) {
+        static bool Load(std::vector<Object::Property>& properties, const Json::Value& data) {
             if (!data["Icon"].empty()) {
                 std::string fileName = data["Icon"].asString();
                 auto ptr = std::make_shared<Icon>(std::move(fileName));
                 properties.emplace_back(ptr);
+                return true;
             }
+
+            return false;
         }
     };
 
     template<>
     struct Loader<Material> {
-        static void Load(std::vector<Object::Property>& properties, const Json::Value& data) {
+        static bool Load(std::vector<Object::Property>& properties, const Json::Value& data) {
             if (!data["Material"].empty()) {
                 std::string materialStr = data["Material"].asString();
                 Material::Type type = GetType(materialStr);
 
                 auto ptr = std::make_shared<Material>(type);
                 properties.emplace_back(ptr);
+                return true;
             }
+
+            return false;
         }
     };
 
     template<>
     struct Loader<Points> {
-        static void Load(std::vector<Object::Property>& properties, const Json::Value& data) {
+        static bool Load(std::vector<Object::Property>& properties, const Json::Value& data) {
             if (!data["Points"].empty()) {
                 std::string valueStr = data["Points"].asString();
                 unsigned long value = 0;
@@ -121,13 +127,16 @@ namespace Editor {
 
                 auto ptr = std::make_shared<Points>(value);
                 properties.emplace_back(ptr);
+                return true;
             }
+
+            return false;
         }
     };
 
     template<>
     struct Loader<Speed> {
-        static void Load(std::vector<Object::Property>& properties, const Json::Value& data) {
+        static bool Load(std::vector<Object::Property>& properties, const Json::Value& data) {
             if (!data["Speed"].empty()) {
                 float value = data["Speed"].asFloat();
                 float minValue = value;
@@ -151,26 +160,32 @@ namespace Editor {
 
                 auto ptr = std::make_shared<Speed>(value, minValue, maxValue);
                 properties.emplace_back(ptr);
+                return true;
             }
+
+            return false;
         }
     };
 
     template<>
     struct Loader<Int> {
-        static void Load(std::vector<Object::Property>& properties, const Json::Value& data) {
+        static bool Load(std::vector<Object::Property>& properties, const Json::Value& data) {
             if (!data["Int"].empty()) {
                 unsigned int value = data["Int"].asInt();
                 auto ptr = std::make_shared<Int>(value);
                 properties.emplace_back(ptr);
+                return true;
             }
+
+            return false;
         }
     };
 
     void LoadProperty(std::vector<Object::Property>& properties, const Json::Value& data) {
-        Loader<Icon>::Load(properties, data);
-        Loader<Material>::Load(properties, data);
-        Loader<Points>::Load(properties, data);
-        Loader<Speed>::Load(properties, data);
+        if (!Loader<Icon>::Load(properties, data)) {}
+        else if (!Loader<Material>::Load(properties, data)) {}
+        else if (!Loader<Points>::Load(properties, data)) {}
+        else if (!Loader<Speed>::Load(properties, data)) {}
         Loader<Int>::Load(properties, data);
     }
 
