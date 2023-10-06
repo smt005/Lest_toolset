@@ -15,7 +15,7 @@ namespace Window {
     struct IconContainer {
         typedef std::shared_ptr<IconContainer> Ptr;
 
-        help::InputContainer filePath;
+        help::InputContainer<256> filePath;
         Texture::Ptr texture;
 
         float sizeDisplayIcon = 100.f;
@@ -25,8 +25,8 @@ namespace Window {
         typedef std::shared_ptr<SpeedContainer> Ptr;
 
         bool isEdit = 0;
-        help::TextBuffer minText;
-        help::TextBuffer maxText;
+        help::InputContainer<47> minText;
+        help::InputContainer<47> maxText;
     };
 
     // Вспомогательная функция
@@ -86,7 +86,7 @@ namespace Window {
         float widthSlider = _widthContent - widthButton - widthContentBorder;
 
         ImGui::PushItemWidth(widthSlider);
-        help::TextBuffer& textBuffer = iconContainerPtr->filePath.textBuffer;
+        auto& textBuffer = iconContainerPtr->filePath.textBuffer;
 
         if (ImGui::InputText(iconContainerPtr->filePath.GetId(), textBuffer.data(), textBuffer.size())) {
             UpdatePropertyTexture(textBuffer.data(), *iconContainerPtr, *iconPtr);
@@ -130,14 +130,14 @@ namespace Window {
     }
 
     void DrawProperty::operator()(property::Points::Ptr& pointsPtr) {
-        help::InputContainer* textPtr = GetDisplayPropertyPtr<help::InputContainer>(_displayProp.displayPropertyPtr);
+        auto* textPtr = GetDisplayPropertyPtr<help::InputContainer<10>>(_displayProp.displayPropertyPtr);
         if (!textPtr)
             return;
 
         DrawTitle(_displayProp.name);
 
         ImGui::PushItemWidth(_widthContent);
-        help::TextBuffer& textBuffer = textPtr->textBuffer;
+        auto& textBuffer = textPtr->textBuffer;
 
         if (ImGui::InputText(textPtr->GetId(), textBuffer.data(), textBuffer.size())) {
             unsigned long value;
@@ -170,56 +170,59 @@ namespace Window {
             if (ImGui::Button(">...<##limit_btn", ImVec2(widthButton, 20.f))) {
                 speedContainerPtr->isEdit = true;
 
-                help::CopyToArrayChar(speedContainerPtr->minText, std::to_string(speedPtr->minValue));
-                help::CopyToArrayChar(speedContainerPtr->maxText, std::to_string(speedPtr->maxValue));
+                help::CopyToArrayChar(speedContainerPtr->minText.textBuffer, std::to_string(speedPtr->minValue));
+                help::CopyToArrayChar(speedContainerPtr->maxText.textBuffer, std::to_string(speedPtr->maxValue));
             }
         }
         else {
             float widthinputText = _widthContent - widthButton;
             widthinputText /= 2.f;
             widthinputText -= 60.f;
+            {
+                auto& minTextBuffer = speedContainerPtr->minText.textBuffer;
 
-            ImGui::Text("Min:");
+                ImGui::Text("Min:");
 
-            ImGui::SameLine();
-            ImGui::PushItemWidth(widthinputText);
+                ImGui::SameLine();
+                ImGui::PushItemWidth(widthinputText);
 
-            help::TextBuffer& minText = speedContainerPtr->minText;
+                if (ImGui::InputText(speedContainerPtr->minText.GetId(), minTextBuffer.data(), minTextBuffer.size())) {
+                    float valueTmp = 0;
+                    if (std::from_chars(minTextBuffer.data(), minTextBuffer.data() + minTextBuffer.size(), valueTmp).ec == std::errc{}) {
+                        if (valueTmp > speedPtr->maxValue) {
+                            speedPtr->minValue = speedPtr->maxValue;
+                        }
+                        else {
+                            speedPtr->minValue = valueTmp;
+                        }
 
-            if (ImGui::InputText("##min_limit", minText.data(), minText.size())) { 
-                float valueTmp = 0;
-                if (std::from_chars(minText.data(), minText.data() + minText.size(), valueTmp).ec == std::errc{}) {
-                    if (valueTmp > speedPtr->maxValue) {
-                        speedPtr->minValue = speedPtr->maxValue;
+                        help::CopyToArrayChar(minTextBuffer, std::to_string(speedPtr->minValue));
                     }
-                    else {
-                        speedPtr->minValue = valueTmp;
-                    }
-
-                    help::CopyToArrayChar(speedContainerPtr->minText, std::to_string(speedPtr->minValue));
                 }
             }
 
-            ImGui::SameLine();
-            ImGui::Text("Max:");
+            {
+                auto& maxTextBuffer = speedContainerPtr->maxText.textBuffer;
 
-            ImGui::SameLine();
+                ImGui::SameLine();
+                ImGui::Text("Max:");
 
-            help::TextBuffer& maxText = speedContainerPtr->maxText;
+                ImGui::SameLine();
+                if (ImGui::InputText(speedContainerPtr->maxText.GetId(), maxTextBuffer.data(), maxTextBuffer.size())) {
+                    float valueTmp = 0;
+                    if (std::from_chars(maxTextBuffer.data(), maxTextBuffer.data() + maxTextBuffer.size(), valueTmp).ec == std::errc{}) {
+                        if (valueTmp < speedPtr->minValue) {
+                            speedPtr->maxValue = speedPtr->minValue;
+                        }
+                        else {
+                            speedPtr->maxValue = valueTmp;
+                        }
 
-            if (ImGui::InputText("##max_limit", speedContainerPtr->maxText.data(), speedContainerPtr->maxText.size())) {
-                float valueTmp = 0;
-                if (std::from_chars(maxText.data(), maxText.data() + maxText.size(), valueTmp).ec == std::errc{}) {
-                    if (valueTmp < speedPtr->minValue) {
-                        speedPtr->maxValue = speedPtr->minValue;
+                        help::CopyToArrayChar(maxTextBuffer, std::to_string(speedPtr->maxValue));
                     }
-                    else {
-                        speedPtr->maxValue =  valueTmp;
-                    }
-
-                    help::CopyToArrayChar(speedContainerPtr->maxText, std::to_string(speedPtr->maxValue));
                 }
             }
+
             ImGui::PopItemWidth();
 
             ImGui::SameLine();
@@ -233,14 +236,14 @@ namespace Window {
     }
 
     void DrawProperty::operator()(property::IntPtr& intPtr) {
-        help::InputContainer* textPtr = GetDisplayPropertyPtr<help::InputContainer>(_displayProp.displayPropertyPtr);
+        auto* textPtr = GetDisplayPropertyPtr<help::InputContainer<12>>(_displayProp.displayPropertyPtr);
         if (!textPtr)
             return;
 
         DrawTitle(_displayProp.name);
 
         ImGui::PushItemWidth(_widthContent);
-        help::TextBuffer& textBuffer = textPtr->textBuffer;
+        auto& textBuffer = textPtr->textBuffer;
 
         if (ImGui::InputText(textPtr->GetId(), textBuffer.data(), textBuffer.size())) {
             int value;
@@ -277,7 +280,7 @@ namespace Window {
 
     void PrepareProperty::operator()(property::Points::Ptr& points) {
         std::any& displayProperty = AddDisplayProperty("Points", points);
-        help::InputContainer::Ptr textBuffer = std::make_shared<help::InputContainer>();
+        auto textBuffer = std::make_shared<help::InputContainer<10>>();
         displayProperty = textBuffer;
 
         std::string valueString = std::to_string(points->value);
@@ -288,18 +291,12 @@ namespace Window {
         std::any& displayProperty = AddDisplayProperty("Speed", speed);
         SpeedContainer::Ptr speedContainer = std::make_shared<SpeedContainer>();
         displayProperty = speedContainer;
-
-        std::string minValueString = std::to_string(speed->minValue);
-        help::CopyToArrayChar(speedContainer->minText, minValueString);
-
-        std::string maxValueString = std::to_string(speed->maxValue);
-        help::CopyToArrayChar(speedContainer->maxText, maxValueString);
     }
 
     void PrepareProperty::operator()(property::IntPtr& intPtr) {
         std::any& displayProperty = AddDisplayProperty("int", intPtr);
 
-        help::InputContainer::Ptr textBuffer = std::make_shared<help::InputContainer>();
+        auto textBuffer = std::make_shared<help::InputContainer<12>>();
         displayProperty = textBuffer;
 
         std::string valueString = std::to_string(*intPtr);

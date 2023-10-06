@@ -144,7 +144,7 @@ namespace Window {
         ImGui::PushItemWidth(propertySize.x / 2 - DrawProperty::widthContentBorder);
         ImGui::PushStyleColor(ImGuiCol_WindowBg | ImGuiCol_Border, _selectObjectData.textInfo.empty() ? whiteColor : redColor);
 
-        help::TextBuffer& inputIdText = _selectObjectData.inpetIdText.textBuffer;
+        auto& inputIdText = _selectObjectData.inpetIdText.textBuffer;
 
         if (ImGui::InputText(_selectObjectData.inpetIdText.GetId(), inputIdText.data(), inputIdText.size())) {
             if (_selectObjectData.objectPtr->GetId() == inputIdText.data() || CheckObjectId(inputIdText.data())) {
@@ -227,7 +227,7 @@ namespace Window {
     }
 
     void ObjectEditor::ShowAdd() {
-        PopupModal::Show(GetWndPtr(), [this, inputPtr = std::make_shared<help::TextBuffer>(), infoTextPtr = std::make_shared<std::string>()]() {
+        PopupModal::Show(GetWndPtr(), [this, inputPtr = std::make_shared<std::array<char, 64>>(), infoTextPtr = std::make_shared<std::string>()]() {
             ImGui::PushItemWidth(190.f);
             ImGui::PushStyleColor(ImGuiCol_WindowBg | ImGuiCol_Border, infoTextPtr->empty() ? grayColor : redColor);
 

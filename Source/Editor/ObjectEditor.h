@@ -25,7 +25,7 @@ namespace Window {
 		};
 
 		struct SelectObjectData {
-			help::InputContainer inpetIdText;
+			help::InputContainer<64> inpetIdText;
 			std::string textInfo;
 			property::Object::Ptr objectPtr;
 			std::vector<DisplayProperty::Ptr> properties;

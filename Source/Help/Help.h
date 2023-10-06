@@ -7,7 +7,6 @@
 #include "json/json.h"
 
 namespace help {
-	typedef std::array<char, 128> TextBuffer;
 
 	template <class T>
 	void Log(T&& text) {
@@ -26,22 +25,30 @@ namespace help {
 	};
 
 	//...
+	unsigned int GetNextGuiId();
+
+	template <size_t T>
 	struct InputContainer {
 		typedef std::shared_ptr<InputContainer> Ptr;
 
-		InputContainer() : _guiId("##" + std::to_string(++guiIndex)) {
-		}
+		InputContainer() : _guiId("##" + std::to_string(GetNextGuiId())) { }
+
 		const char* GetId() {
 			return _guiId.c_str();
 		}
-		void Clear();
-		void Set(const std::string& text);
+		void Clear() {
+			textBuffer[0] = '\0';
+			_guiId = "##" + std::to_string(GetNextGuiId());
+		}
+		void Set(const std::string& text) {
+			_guiId = "##" + std::to_string(GetNextGuiId());
+			help::CopyToArrayChar(textBuffer, text);
+		}
 
-		TextBuffer textBuffer;
+		std::array<char, T> textBuffer;
 
 	private:
 		std::string _guiId;
-		static int guiIndex;
 	};
 
 	//...

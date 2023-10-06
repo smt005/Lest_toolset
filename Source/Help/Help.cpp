@@ -4,14 +4,10 @@
 
 using namespace help;
 
-int InputContainer::guiIndex = 0;
-void InputContainer::Clear() {
-	textBuffer[0] = '\0';
-	_guiId = "##" + std::to_string(++guiIndex);
-}
-void InputContainer::Set(const std::string& text) {
-	_guiId = "##" + std::to_string(++guiIndex);
-	help::CopyToArrayChar(textBuffer, text);
+unsigned int help::GetNextGuiId() {
+	static unsigned int guiId = 0;
+	++guiId;
+	return guiId;
 }
 
 //...
