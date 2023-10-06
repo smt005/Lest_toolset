@@ -1,7 +1,7 @@
 {
 	"All" : 
 	{
-		"Icon" : "Player.png",
+		"Icon" : "Matrix/VertLong.jpg",
 		"Int" : -100500,
 		"Material" : "Wood",
 		"Points" : "999999999",
@@ -14,8 +14,8 @@
 	},
 	"Banana" : 
 	{
-		"Icon" : "Matrix/Vert.jpg",
-		"Points" : "1234567890"
+		"Icon" : "Matrix/HorLong.jpg",
+		"Points" : "123456789"
 	},
 	"Gold" : 
 	{
@@ -42,7 +42,7 @@
 	},
 	"Rail" : 
 	{
-		"Icon" : "Matrix\\Vert.jpg",
+		"Icon" : "Matrix/Vert.jpg",
 		"Speed" : 8.3000001907348633,
 		"SpeedLimits" : 
 		[
@@ -52,7 +52,7 @@
 	},
 	"Wall" : 
 	{
-		"Icon" : "Color/Matrix4_4_color.png",
+		"Icon" : "Color/Matrix4_4_color.jpg",
 		"Material" : "Wood"
 	}
 }

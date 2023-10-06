@@ -11,56 +11,70 @@
 namespace Window {
     using namespace property;
 
-    // Вспомогательные классы
-    struct IconContainer {
-        typedef std::shared_ptr<IconContainer> Ptr;
+    namespace {
+        ImVec4 redColor = { 0.9f, 0.1f, 0.1f, 1.f };
+        ImVec4 whiteColor = { 1.f, 1.f, 1.f, 1.f };
+    
+        // Вспомогательные классы
+        struct IconContainer {
+            typedef std::shared_ptr<IconContainer> Ptr;
 
-        help::InputContainer<256> filePath;
-        Texture::Ptr texture;
+            help::InputContainer<256> filePath;
+            Texture::Ptr texture;
 
-        float sizeDisplayIcon = 100.f;
-    };
+            float maxHeighthIcon = 100.f;
+            float maxWidthIcon = 300.f;
+        };
 
-    struct SpeedContainer {
-        typedef std::shared_ptr<SpeedContainer> Ptr;
+        struct SpeedContainer {
+            typedef std::shared_ptr<SpeedContainer> Ptr;
 
-        bool isEdit = 0;
-        help::InputContainer<47> minText;
-        help::InputContainer<47> maxText;
-    };
+            bool isEdit = 0;
+            help::InputContainer<47> minText;
+            help::InputContainer<47> maxText;
+        };
 
-    // Вспомогательная функция
-    std::string ChooseFile() {
-        std::string fiilNameFile = help::SelectFile();
-        std::replace(fiilNameFile.begin(), fiilNameFile.end(), '\\', '/');
+        // Вспомогательная функция
+        std::string ChooseFile() {
+            std::string fiilNameFile = help::SelectFile();
+            std::replace(fiilNameFile.begin(), fiilNameFile.end(), '\\', '/');
 
-        std::string resourcesDir = help::FileManager::GetResourcesDir().u8string();
-        std::replace(resourcesDir.begin(), resourcesDir.end(), '\\', '/');
+            std::string resourcesDir = help::FileManager::GetResourcesDir().u8string();
+            std::replace(resourcesDir.begin(), resourcesDir.end(), '\\', '/');
 
-        size_t pos = fiilNameFile.find(resourcesDir);
-        if (pos == resourcesDir.npos) {
-            return std::string();
+            size_t pos = fiilNameFile.find(resourcesDir);
+            if (pos == resourcesDir.npos) {
+                return std::string();
+            }
+
+            pos += resourcesDir.size() + 1;
+            if (pos >= fiilNameFile.size()) {
+                return std::string();
+            }
+
+            size_t size = fiilNameFile.size() - pos;
+            std::string nameFile = fiilNameFile.substr(pos, size);
+            return nameFile;
         }
 
-        pos += resourcesDir.size() + 1;
-        if (pos >= fiilNameFile.size()) {
-            return std::string();
-        }
-
-        size_t size = fiilNameFile.size() - pos;
-        std::string nameFile = fiilNameFile.substr(pos, size);
-        return nameFile;
-    }
-
-    template <typename T>
-    bool UpdatePropertyTexture(T&& newFileName, IconContainer& iconContainer, property::Icon& icon) {
-        if (help::FileManager::HasFile(newFileName)) {
-            iconContainer.texture = Texture::AddTexture(newFileName, 0);
+        template <typename T>
+        void UpdatePropertyTexture(T&& newFileName, IconContainer& iconContainer, property::Icon& icon) {
             icon.fileName = newFileName;
-            return true;
-        }
 
-        return false;
+            if (help::FileManager::HasFile(newFileName)) {
+                iconContainer.texture = Texture::AddTexture(newFileName, 0);
+
+                if (!iconContainer.texture->Load()) {
+                    Texture::RemoveTexture(newFileName);
+                    iconContainer.texture.reset();
+                }
+
+                return;
+            }
+
+            iconContainer.texture.reset();
+            return;
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -82,35 +96,62 @@ namespace Window {
 
         DrawTitle(_displayProp.name);
 
+
+        auto& textBuffer = iconContainerPtr->filePath.textBuffer;
+
         float widthButton = 100.f;
         float widthSlider = _widthContent - widthButton - widthContentBorder;
 
         ImGui::PushItemWidth(widthSlider);
-        auto& textBuffer = iconContainerPtr->filePath.textBuffer;
+        ImGui::PushStyleColor(ImGuiCol_WindowBg | ImGuiCol_Border, iconContainerPtr->texture ? whiteColor : redColor);
 
         if (ImGui::InputText(iconContainerPtr->filePath.GetId(), textBuffer.data(), textBuffer.size())) {
             UpdatePropertyTexture(textBuffer.data(), *iconContainerPtr, *iconPtr);
         }
+
+        ImGui::PopStyleColor();
         ImGui::PopItemWidth();
 
         ImGui::SameLine();
         if (ImGui::Button("...##choose_texture_btn", { widthButton, 20.f })) {
             std::string newFileName = ChooseFile();
-            if (UpdatePropertyTexture(newFileName, *iconContainerPtr, *iconPtr)) {
+
+            if (!newFileName.empty()) {
+                UpdatePropertyTexture(newFileName, *iconContainerPtr, *iconPtr);
                 help::CopyToArrayChar(textBuffer, newFileName);
             }
         }
 
-        if (*iconContainerPtr->texture) {
-            float width = static_cast<float>(iconContainerPtr->texture->GetWidth()) / static_cast<float>(iconContainerPtr->texture->GetHeight()) * iconContainerPtr->sizeDisplayIcon;
+        if (iconContainerPtr->texture) {
+            float verticalSpace = 0.f;
+            float height = static_cast<float>(iconContainerPtr->texture->GetHeight());
+            float width = static_cast<float>(iconContainerPtr->texture->GetWidth());
+
+            float yFactor = iconContainerPtr->maxHeighthIcon / height;
+            float newWidth = width * yFactor;
+            if (newWidth > iconContainerPtr->maxWidthIcon) {
+                height *= iconContainerPtr->maxWidthIcon / width;
+                width = iconContainerPtr->maxWidthIcon;
+                verticalSpace = iconContainerPtr->maxHeighthIcon - height;
+            }
+            else {
+                height = iconContainerPtr->maxHeighthIcon;
+                width = newWidth;
+            }
 
             ImGui::Dummy(ImVec2(0.f, 0.f));
             ImGui::Image(reinterpret_cast<ImTextureID>(**iconContainerPtr->texture),
-                        { width, iconContainerPtr->sizeDisplayIcon },
-                        { 0, 1 }, { 1, 0 }, { 1.f, 1.f, 1.f, 1.f }, { 1.f, 1.f, 1.f, 1.f });
+                { width, height },
+                { 0, 1 }, { 1, 0 }, { 1.f, 1.f, 1.f, 1.f }, { 1.f, 1.f, 1.f, 1.f });
+
+            if (verticalSpace > 0.f) {
+                ImGui::Dummy(ImVec2(0.f, verticalSpace));
+            }
         }
-        else {  
-            iconContainerPtr->texture->Load();
+        else {
+            ImGui::Dummy(ImVec2(0.f, 40.f));
+            ImGui::TextColored(redColor, "%s", "Texture no founded.");
+            ImGui::Dummy(ImVec2(0.f, 40.f));
         }
     }
 
@@ -269,7 +310,11 @@ namespace Window {
         const std::string& fileName = icon->fileName;
         help::CopyToArrayChar(iconContainer->filePath.textBuffer, fileName);
 
-        iconContainer->texture = Texture::AddTexture(fileName, 0);
+        if (help::FileManager::HasFile(fileName)) {
+            if (iconContainer->texture = Texture::AddTexture(fileName, 0)) {
+                iconContainer->texture->Load();
+            }
+        }
     }
 
     void PrepareProperty::operator()(property::Material::Ptr& material) {

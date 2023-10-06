@@ -18,10 +18,11 @@ void Texture::Delete() {
 	_id = 0;
 }
 
-void Texture::Load() {
+bool Texture::Load() {
 	if (_id == 0 && !_fileName.empty()) {
 		_id = LoadTexture(_fileName, _width, _height);
 	}
+	return static_cast<bool>(_id);
 }
 
 // Static 

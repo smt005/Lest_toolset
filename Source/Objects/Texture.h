@@ -36,7 +36,7 @@ public:
 	unsigned int GetHeight() const { return _height; }
 
 	void Delete();
-	void Load();
+	bool Load();
 
 private:
 	unsigned int _id;
