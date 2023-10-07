@@ -87,3 +87,9 @@ link_directories(${IMGUI_DIR})
 target_link_libraries(${PROJECT_NAME} "${FREEIMAGE_LIB}/${FREEIMAGE_NAME}.lib")
 file(COPY "${FREEIMAGE_DLL}/${FREEIMAGE_NAME}.dll" DESTINATION ${PROJECT_DIR}/Tools/debug)
 file(COPY "${FREEIMAGE_DLL}/${FREEIMAGE_NAME}.dll" DESTINATION ${PROJECT_DIR}/Tools/release)
+
+# version
+add_custom_target( git_version ALL
+    "${CMAKE_COMMAND}" -E chdir "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_COMMAND}" -P "Source/Extra/version.cmake"
+)
+add_dependencies( ${PROJECT_NAME} git_version )

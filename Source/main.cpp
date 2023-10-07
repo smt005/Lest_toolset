@@ -4,6 +4,11 @@
 #include "Editor/ImGuiManage.h"
 #include "Help/Help.h"
 
+#ifdef _DEBUG
+	#include "../Build/version.h"
+	#define APP_INFO " [ " __DATE__"  " __TIME__" " GIT_HASH " ]"
+#endif
+
 #if WINDOWS_HIDE_CONSOLE
 #include <Windows.h>
 #endif
@@ -38,7 +43,12 @@ namespace {
 			return 1;
 		}
 
+#ifdef _DEBUG
+		std::string titleEndInfo = std::string(title) + APP_INFO;
+		GLFWwindow* window = glfwCreateWindow(width, height, titleEndInfo.c_str(), nullptr, nullptr);
+#else
 		GLFWwindow* window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+#endif
 		if (!window) {
 			glfwTerminate();
 			return 1;
