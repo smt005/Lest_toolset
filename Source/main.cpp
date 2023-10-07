@@ -5,8 +5,9 @@
 #include "Help/Help.h"
 
 #ifdef _DEBUG
-	#include "../Build/version.h"
-	#define APP_INFO " [ " __DATE__"  " __TIME__" " GIT_HASH " ]"
+	#include "../Build/git_hash.h"
+	#include "../Build/git_name_branch.h"
+	#define APP_INFO " [ " __DATE__"  " __TIME__" ] [ " GIT_NAME_BRANCH  " - " GIT_HASH " ]"
 #endif
 
 #if WINDOWS_HIDE_CONSOLE

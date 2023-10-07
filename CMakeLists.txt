@@ -89,7 +89,12 @@ file(COPY "${FREEIMAGE_DLL}/${FREEIMAGE_NAME}.dll" DESTINATION ${PROJECT_DIR}/To
 file(COPY "${FREEIMAGE_DLL}/${FREEIMAGE_NAME}.dll" DESTINATION ${PROJECT_DIR}/Tools/release)
 
 # version
-add_custom_target( git_version ALL
-    "${CMAKE_COMMAND}" -E chdir "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_COMMAND}" -P "Source/Extra/version.cmake"
+add_custom_target( git_hash ALL
+    "${CMAKE_COMMAND}" -E chdir "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_COMMAND}" -P "Source/Extra/git_hash.cmake"
 )
-add_dependencies( ${PROJECT_NAME} git_version )
+add_custom_target( git_name_branch ALL
+    "${CMAKE_COMMAND}" -E chdir "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_COMMAND}" -P "Source/Extra/git_name_branch.cmake"
+)
+
+add_dependencies( ${PROJECT_NAME} git_hash )
+add_dependencies( ${PROJECT_NAME} git_name_branch )
