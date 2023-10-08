@@ -1,6 +1,7 @@
 
 #include "GLFW/glfw3.h"
-#include "Editor/ObjectEditor.h"
+//#include "Editor/ObjectEditor.h"
+#include "FindDuplicate/FindDuplicate.h"
 #include "Editor/ImGuiManage.h"
 #include "Help/Help.h"
 
@@ -23,7 +24,7 @@ namespace {
 	int maxWidth = 2560;
 	int maxHeight = 1440;
 
-	std::unique_ptr<Window::ObjectEditor> editorPtr;
+	std::unique_ptr<Window::FindDuplicate> editorPtr;
 
 	void WindowSizeCallback(GLFWwindow* window, int width, int height) {
 		editorPtr->Resize(static_cast<float>(width), static_cast<float>(height));
@@ -63,7 +64,7 @@ namespace {
 
 		// Первый аргумен определяет в какой папке ресурсы относительно приложения.
 		// Второй параметр определяет название файла с даными.
-		editorPtr = std::make_unique<Window::ObjectEditor>("/../Resources", "Objects.json");
+		editorPtr = std::make_unique<Window::FindDuplicate>("/../Resources", "Objects.json");
 		if (!editorPtr) {
 			Terminate();
 			return 1;

@@ -1,13 +1,13 @@
 #pragma once
 
 #include "../Objects/Objects.h"
-#include "../Editor/ObjectEditor.h"
+#include "../FindDuplicate/FindDuplicate.h"
 
 namespace Window {
     // Отображение
     class DrawProperty final {
     public:
-        DrawProperty(ObjectEditor::DisplayProperty& displayProp, const float widthContent)
+        DrawProperty(FindDuplicate::DisplayProperty& displayProp, const float widthContent)
             : _displayProp(displayProp)
             , _widthContent(widthContent)
         {}
@@ -28,12 +28,12 @@ namespace Window {
 
     public:
         static void DrawTitle(const std::string& text);
-        static void Draw(ObjectEditor::DisplayProperty& property, float widthContent) {
+        static void Draw(FindDuplicate::DisplayProperty& property, float widthContent) {
             std::visit(DrawProperty(property, widthContent), property.propertyPtr);
         }
 
     private:
-        ObjectEditor::DisplayProperty& _displayProp;
+        FindDuplicate::DisplayProperty& _displayProp;
         float _widthContent;
 
     public:
@@ -43,11 +43,11 @@ namespace Window {
     // Подготовка к отображению
     class PrepareProperty final {
     public:
-        PrepareProperty(std::vector<Window::ObjectEditor::DisplayProperty::Ptr>& properties) : _properties(properties) { }
+        PrepareProperty(std::vector<Window::FindDuplicate::DisplayProperty::Ptr>& properties) : _properties(properties) { }
 
         template <typename T>
         std::any& AddDisplayProperty(const std::string& displayText, T&& prop) const {
-            return _properties.emplace_back(new ObjectEditor::DisplayProperty(displayText, prop))->displayPropertyPtr;
+            return _properties.emplace_back(new FindDuplicate::DisplayProperty(displayText, prop))->displayPropertyPtr;
         }
 
         void operator()(property::Icon::Ptr& property);
@@ -57,11 +57,11 @@ namespace Window {
         void operator()(property::IntPtr& property);
 
     public:
-        static void Prepare(property::Object::Property& property, std::vector<Window::ObjectEditor::DisplayProperty::Ptr>& properties) {
+        static void Prepare(property::Object::Property& property, std::vector<Window::FindDuplicate::DisplayProperty::Ptr>& properties) {
             std::visit(PrepareProperty(properties), property);
         }
 
     private:
-        std::vector<Window::ObjectEditor::DisplayProperty::Ptr>& _properties;
+        std::vector<Window::FindDuplicate::DisplayProperty::Ptr>& _properties;
     };
 }

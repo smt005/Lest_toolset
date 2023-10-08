@@ -8,7 +8,7 @@
 
 
 namespace Window {
-	class ObjectEditor final {
+	class FindDuplicate final {
 	public:
 		struct DisplayProperty {
 			typedef std::shared_ptr<DisplayProperty> Ptr;
@@ -44,15 +44,15 @@ namespace Window {
 			}
 		};
 
-	// ObjectEditor
+	// FindDuplicate
 
 	public:
-		ObjectEditor(const std::filesystem::path& resourcePathName, const std::string& resourceFileName);
-		ObjectEditor() = delete;
-		ObjectEditor(const ObjectEditor&) = delete;
-		ObjectEditor(ObjectEditor&&) = delete;
-		void operator = (const ObjectEditor&) = delete;
-		void operator = (ObjectEditor&&) = delete;
+		FindDuplicate(const std::filesystem::path& resourcePathName, const std::string& resourceFileName);
+		FindDuplicate() = delete;
+		FindDuplicate(const FindDuplicate&) = delete;
+		FindDuplicate(FindDuplicate&&) = delete;
+		void operator = (const FindDuplicate&) = delete;
+		void operator = (FindDuplicate&&) = delete;
 
 	public:
 		void InitDisplay(float width, float height);

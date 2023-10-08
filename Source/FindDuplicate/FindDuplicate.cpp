@@ -1,11 +1,11 @@
-#include "ObjectEditor.h"
+#include "FindDuplicate.h"
 
 #include <set>
 #include "imgui.h"
 
-#include "DisplayProperties.h"
-#include "StoreProperties.h"
-#include "PopupModal.h"
+#include "../FindDuplicate/DisplayProperties.h"
+#include "../FindDuplicate/StoreProperties.h"
+#include "../Editor/PopupModal.h"
 #include "../Objects/Objects.h"
 #include "../Help/FileManager.h"
 #include "../Help/WindowsWin.h"
@@ -30,8 +30,8 @@ namespace Window {
         ImVec4 greenColor = { 0.9f, 0.9f, 0.9f, 1.f };
     }
 
-    ObjectEditor::ObjectEditor(const std::filesystem::path& resourcePath, const std::string& resourceFileName)
-        : _windowId(typeid(ObjectEditor).name())
+    FindDuplicate::FindDuplicate(const std::filesystem::path& resourcePath, const std::string& resourceFileName)
+        : _windowId(typeid(FindDuplicate).name())
         , _windowFlags(ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove) 
         , _resourceFileName(resourceFileName)
 	{
@@ -40,7 +40,7 @@ namespace Window {
         help::FileManager::SetResourcesDir(path);
 	}
 
-	void ObjectEditor::Resize(float width, float height) {        
+	void FindDuplicate::Resize(float width, float height) {        
         ImGui::SetWindowPos(_windowId, { 0.f, 0.f });
 		ImGui::SetWindowSize(_windowId, { width, height });
 
@@ -51,13 +51,13 @@ namespace Window {
         offsetRightButtons = width - borderRightButtons;
 	}
 
-    void ObjectEditor::InitDisplay(float width, float height) {
+    void FindDuplicate::InitDisplay(float width, float height) {
         ImGui::Begin(_windowId, nullptr, _windowFlags);
         Resize(width, height);
         ImGui::End();
     }
 
-	void ObjectEditor::Render() {
+	void FindDuplicate::Render() {
 		ImGui::Begin(_windowId, nullptr, _windowFlags);
 
         ListDisplay();
@@ -73,7 +73,7 @@ namespace Window {
 		ImGui::End();
 	}
 
-    void ObjectEditor::Load() {
+    void FindDuplicate::Load() {
         Json::Value data;
         if (!help::LoadJson(_resourceFileName, data)) {
             return;
@@ -95,7 +95,7 @@ namespace Window {
         }
     }
 
-    void ObjectEditor::Save() {
+    void FindDuplicate::Save() {
         Json::Value data;
 
         for (const Object::Ptr& object : _objects) {
@@ -111,7 +111,7 @@ namespace Window {
 
     // Private
 
-    void ObjectEditor::ListDisplay() {
+    void FindDuplicate::ListDisplay() {
         ImGui::BeginChild("list", listSize, true);
 
         ImGui::Columns(2);
@@ -134,7 +134,7 @@ namespace Window {
         ImGui::EndChild();
     }
 
-    void ObjectEditor::DisplayId() {
+    void FindDuplicate::DisplayId() {
         if (!_selectObjectData.objectPtr) {
             return;
         }
@@ -165,7 +165,7 @@ namespace Window {
         ImGui::Separator();
     }
 
-    void ObjectEditor::EditDisplay() {
+    void FindDuplicate::EditDisplay() {
         int _guiId = 0;
         ImGui::BeginChild("edit", propertySize, true);
 
@@ -192,7 +192,7 @@ namespace Window {
         ImGui::EndChild();
     }
 
-    void ObjectEditor::ButtonDisplay() {
+    void FindDuplicate::ButtonDisplay() {
         ImGui::BeginChild("button", propButtonsSize, false);
 
         if (ImGui::Button("Add", buttonSize)) {
@@ -226,7 +226,7 @@ namespace Window {
         ImGui::EndChild();
     }
 
-    void ObjectEditor::ShowAdd() {
+    void FindDuplicate::ShowAdd() {
         PopupModal::Show(GetWndPtr(), [this, inputPtr = std::make_shared<std::array<char, 64>>(), infoTextPtr = std::make_shared<std::string>()]() {
             ImGui::PushItemWidth(190.f);
             ImGui::PushStyleColor(ImGuiCol_WindowBg | ImGuiCol_Border, infoTextPtr->empty() ? grayColor : redColor);
@@ -264,7 +264,7 @@ namespace Window {
         }, "Add");
     }
 
-    void ObjectEditor::ShowRemove() {
+    void FindDuplicate::ShowRemove() {
         PopupModal::Show(GetWndPtr(), [this]() {
             ImGui::TextColored(redColor, "Remove %s?", _selectObjectData.objectPtr->GetId().c_str());
 
@@ -282,7 +282,7 @@ namespace Window {
         }, "Remove");
     }
 
-    void ObjectEditor::ShowAddProperty() {
+    void FindDuplicate::ShowAddProperty() {
         std::set<const char*> actualSetProperties(Editor::GetListProperties().begin(), Editor::GetListProperties().end());
 
         for (auto& prop : _selectObjectData.objectPtr->GetProperties()) {
@@ -326,7 +326,7 @@ namespace Window {
         }, "Add property");
     }
 
-    void ObjectEditor::ShowRemoveProperty(Object::Ptr& objectPtr, DisplayProperty::Ptr& displayPropPtr) {
+    void FindDuplicate::ShowRemoveProperty(Object::Ptr& objectPtr, DisplayProperty::Ptr& displayPropPtr) {
         auto removeProperty = [this, objectPtr, displayPropPtr]() {
             std::vector<Object::Property>& properties = objectPtr->GetProperties();
             auto itProp = std::find_if(properties.begin(), properties.end(), [&propertyPtr = displayPropPtr->propertyPtr](const Object::Property& itProperty) {
@@ -360,7 +360,7 @@ namespace Window {
         }, "Remove property");
     }
 
-    void ObjectEditor::Select(const std::string& id) {
+    void FindDuplicate::Select(const std::string& id) {
         auto it = std::find_if(_objects.begin(), _objects.end(), [&id](const Object::Ptr& objectPtr) {
             return objectPtr->GetId() == id;
         });
@@ -377,14 +377,14 @@ namespace Window {
         }
     }
 
-    bool ObjectEditor::CheckObjectId(const char* id) {
+    bool FindDuplicate::CheckObjectId(const char* id) {
         auto it = std::find_if(_objects.begin(), _objects.end(), [id](const Object::Ptr& object) {
             return object->GetId() == id;
         });
         return it == _objects.end();
     }
 
-    bool ObjectEditor::Add(const std::string& newId) {
+    bool FindDuplicate::Add(const std::string& newId) {
         if (std::find_if(_objects.begin(), _objects.end(), [&newId](const Object::Ptr& argObject) { return argObject->GetId() == newId; }) != _objects.end()) {
             return false;
         }
@@ -394,7 +394,7 @@ namespace Window {
         return true;
     }
 
-    void ObjectEditor::Remove() {
+    void FindDuplicate::Remove() {
         if (!_selectObjectData.objectPtr) {
             return;
         }
